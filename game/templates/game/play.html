@@ -1,0 +1,149 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+        <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+        <script src="https://unpkg.com/babel-standalone@6.26.0/babel.min.js"></script>        <link href="{% static 'game/styles.css' %}" rel="stylesheet">
+        <title>React</title>
+        <script type="text/babel">
+            function Round_over() {
+                var score = document.querySelector("#score_tracker").innerHTML;
+                var score_str = score.split(" ");
+                var score_str = score_str[1];
+                var link = `${score_str}/${tot_time}/save`;
+                return  (<div>
+                            <div id="final_score">{score}</div>
+                            <div><a href={link} >Play again</a></div>
+                        </div>);
+            }
+            var counter = "{{time}}";
+            var tot_time = "{{time}}";
+            document.querySelector('#time').innerHTML = counter;
+            async function worker() {
+                counter --;
+                console.log('call', counter);
+                document.querySelector('#time').innerHTML = counter;
+                if (counter <= 0) {
+                    document.querySelector('#time').innerHTML = '';
+                    clearInterval(counting);
+                    // window.location.replace("{% url 'index' %}")
+                    root.render(<Round_over/>)
+                };
+            };
+            var counting = setInterval(worker, 1000)
+            function App() {
+                function getRandomInt(min, max) {
+                    min = Math.ceil(min);
+                    max = Math.floor(max);
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+                }
+                var as_min = parseInt("{{as_min}}")
+                var as_max = parseInt("{{as_max}}")
+                var md_min1 = parseInt("{{md_min1}}")
+                var md_min2 = parseInt("{{md_min2}}")
+                var md_max1 = parseInt("{{md_max1}}")
+                var md_max2 = parseInt("{{md_max2}}")
+                var ops = ["+", "-", "*", "/"]
+                const [state, setState] = React.useState({
+                    num1: undefined,
+                    num2: undefined,
+                    response: "",
+                    score: 0,
+                    op_ind: getRandomInt(0,3)
+                });
+                if (state.op_ind < 2 && state.num1 === undefined) {
+                    setState({
+                        ...state,
+                        num1: getRandomInt(as_min, as_max),
+                        num2: getRandomInt(as_min, as_max)
+                    })
+                }
+                if (state.op_ind === 1) {
+                        if (state.num2 > state.num1) {
+                            let temp1 = state.num1
+                            let temp2 = state.num2
+                            setState({
+                                ...state,
+                                num2: temp1,
+                                num1: temp2
+                            })
+                        }
+                    }
+                if (state.op_ind > 1 && state.num1 === undefined) {
+                    if (state.op_ind === 2) {
+                        setState({
+                        ...state,
+                        num1: getRandomInt(md_min1, md_max1),
+                        num2: getRandomInt(md_min2, md_max2)
+                        })
+                    } else {
+                        let divisor = getRandomInt(md_min1, md_max1)
+                        let quotient = getRandomInt(md_min2, md_max2)
+                        let dividend = divisor * quotient
+                        setState({
+                            ...state,
+                            num1: dividend,
+                            num2: divisor
+                        })
+
+                    }
+                }
+                function inputKeyPress(event){
+                    // if (event.key === "Enter") {
+                    const answer = parseInt(state.response)
+                    var correct = false
+                    if (state.op_ind === 0) {
+                        if (state.num1 + state.num2 === answer) {
+                            correct = true
+                        }
+                    } else if (state.op_ind === 1) {
+                        if (state.num1 - state.num2 === answer) {
+                            correct = true
+                        }
+                    } else if (state.op_ind === 2) {
+                        if (state.num1 * state.num2 === answer) {
+                            correct = true
+                        }
+                    } else {
+                        if (state.num1/state.num2 === answer) {
+                            correct = true
+                        }
+                    }
+                    if (correct === true) {
+                        setState({
+                            ...state,
+                            num1: undefined,
+                            num2: undefined,
+                            score: state.score + 1,
+                            response: "",
+                            op_ind: getRandomInt(0,3)
+                        });
+                        // }
+                        
+                    }
+                }
+                function updateResponse(event) {
+                    setState({
+                        ...state,
+                        response: event.target.value
+                    });
+                }
+                return (
+                    <div>
+                        <div id="problem">{state.num1} {ops[state.op_ind]} {state.num2}</div>
+                        <input id='input_field' autoFocus={true} onKeyUp={inputKeyPress} onChange={updateResponse} value={state.response} />
+                        <div id="score_tracker">Score: {state.score}</div>
+                    </div>
+                );
+            }   
+            const root = ReactDOM.createRoot(document.querySelector('#app'))
+            document.addEventListener('DOMContentLoaded', root.render(<App/>))
+        </script>
+    </head>
+    <body>
+        <div id="time"></div>
+        <div id="app"></div>
+    </body>
+</html>

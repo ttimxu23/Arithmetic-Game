@@ -1,0 +1,36 @@
+{% extends "game/user_layout.html" %}
+
+{% block body %}
+<h2 class="stats">{{username}}</h2>
+<div class="stats">Rounds played: {{num_rounds}}</div>
+<div class="stats">Personal Bests:</div>
+<div class="stats"> 
+    <div>
+        {% if secs30 %}
+            30 seconds: {{secs30}}
+        {% endif %}
+    </div>
+    <div>
+        {% if secs60 %}
+            60 seconds: {{secs60}}
+        {% endif %}
+    </div>
+    <div>
+        {% if secs120 %}
+            120 seconds: {{secs120}}
+        {% endif %}
+    </div>
+    <div>
+        {% if secs300 %}
+            300 seconds: {{secs300}}
+        {% endif %}
+    </div>
+    <div>
+        {% if secs600 %}
+            600 seconds: {{secs600}}
+        {% endif %}
+    </div>
+
+    
+</div>
+{% endblock %}
